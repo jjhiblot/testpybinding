@@ -23,6 +23,5 @@ int main(int argc, char* argv[])
 
     std::cout << "-----------------------------" << std::endl;
     std::cout << "Dumping recorded operations" << std::endl;
-    std::cout << d.log().str() << std::endl;
-
+    std::cout << d.dump_log() << std::endl;
 }

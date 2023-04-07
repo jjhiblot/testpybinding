@@ -48,9 +48,10 @@ struct potdr_alloc_free_mem_param {
 
 
 DrvWrapper::DrvWrapper(const std::string &devname):
-    m_devname(devname), m_fd(-1), m_regs(*this)
-{
-    m_log = new std::stringstream();
+    m_devname(devname), m_fd(-1),
+    m_log(new std::ostringstream()), m_logging_enabled(false),
+    m_regs(*this)
+{    
     open();
 }
 

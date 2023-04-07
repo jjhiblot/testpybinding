@@ -65,7 +65,10 @@ public:
 
     ModuleLocation location() const { return m_module_location; }
 
-    std::stringstream &log() { return *m_log;}
+    std::ostream &log() { static std::ostream nullout(nullptr); if (m_logging_enabled) return *m_log; else return nullout;}
+    std::string dump_log() {return m_log->str();}
+    void clear_log() {m_log->str(std::string());}
+    void enable_logging(bool enabled) {m_logging_enabled = enabled;}
 
 private:
     void validate_file_descriptor() const;
@@ -78,7 +81,8 @@ private:
     uint32_t *m_reg_ptrs;
     ModulesIDs m_device_ids;
     ModuleLocation m_module_location;
-    std::stringstream *m_log;
+    std::ostringstream *m_log;
+    bool m_logging_enabled;
 
 public:
     RegisterFactory m_regs;
@@ -154,7 +158,13 @@ public:
                 The registers of the device
             )pbdoc", py::return_value_policy::reference)
 
-            .def("log", [](DrvWrapper &m, bool clear) {std::string s = m.log().str(); if (clear) m.log().str(std::string()); return s;},
+
+            .def("enable_logging", &DrvWrapper::enable_logging,
+            py::arg("enabled"),
+            R"pbdoc(
+                Enable/Disable the logging mechanism
+            )pbdoc")
+            .def("log", [](DrvWrapper &m, bool clear) {std::string s = m.dump_log(); if (clear) m.clear_log(); return s;},
             py::arg("clear")=false,
             R"pbdoc(
                 Get the log (and optinnaly clear it)
