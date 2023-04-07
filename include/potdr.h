@@ -51,7 +51,16 @@ public:
     static void add_class(pybind11::module &m)
     {
         auto c = py::class_<Potdr>(m, "Potdr")
-                .def(py::init<DrvWrapper &>())
+                .def(py::init([](DrvWrapper& d) {
+                         py::object o = py::cast(d);
+                         py::handle h = o;
+                         Py_INCREF(h.ptr());
+                        return std::unique_ptr<Potdr>(new Potdr(d));
+                    }))
+                .def("__del__",[](Potdr& p) {
+                         py::object o = py::cast(p.m_drv);
+                         py::handle h = o;
+                         Py_DECREF(h.ptr());})
                 .def(py::init<const Potdr &>())
                 .def_property_readonly("drv", [](Potdr &m) { return &m.m_drv;}, py::return_value_policy::reference)
                 .def_property_readonly("regs", [](Potdr &m) { return &m.m_regs;}, py::return_value_policy::reference)
